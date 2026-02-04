@@ -142,3 +142,48 @@ footer {
   padding: 20px;
   color: #666;
 }
+
+.participants {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #eee;
+}
+
+.participants h5 {
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.participant-list {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.participant-list li {
+  list-style: none;
+  background: linear-gradient(180deg, #ffffff, #f7f9ff);
+  border: 1px solid #e0e7ff;
+  color: #1a237e;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  box-shadow: 0 1px 0 rgba(30, 58, 138, 0.03);
+}
+
+/* small count badge shown next to title */
+.participant-count {
+  background: #e8eefc;
+  color: #1a237e;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  border: 1px solid #cddcff;
+}
