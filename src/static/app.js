@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/activities");
       if (!res.ok) throw new Error("Failed to load activities");
       const data = await res.json();
+      console.log("Fetched activities:", data);
       renderActivities(data);
       populateActivityOptions(data);
     } catch (err) {
@@ -53,7 +54,21 @@ document.addEventListener("DOMContentLoaded", () => {
       if (info.participants && info.participants.length > 0) {
         info.participants.forEach(p => {
           const li = document.createElement("li");
-          li.textContent = p;
+          li.className = "participant-item";
+
+          const span = document.createElement("span");
+          span.className = "participant-email";
+          span.textContent = p;
+
+          const btn = document.createElement("button");
+          btn.className = "remove-participant";
+          btn.setAttribute("aria-label", `Remove ${p} from ${name}`);
+          btn.dataset.activity = name;
+          btn.dataset.email = p;
+          btn.innerHTML = "✖";
+
+          li.appendChild(span);
+          li.appendChild(btn);
           ul.appendChild(li);
         });
       } else {
@@ -68,6 +83,32 @@ document.addEventListener("DOMContentLoaded", () => {
       activitiesListEl.appendChild(card);
     }
   }
+
+  // Event delegation for remove participant buttons
+  activitiesListEl.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".remove-participant");
+    if (!btn) return;
+    const activity = btn.dataset.activity;
+    const email = btn.dataset.email;
+    if (!activity || !email) return;
+
+    try {
+      const encodedActivity = encodeURIComponent(activity);
+      const res = await fetch(`/activities/${encodedActivity}/participants?email=${encodeURIComponent(email)}`, {
+        method: "DELETE"
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        showMessage(json.detail || "Failed to remove participant.", "error");
+        return;
+      }
+      showMessage(json.message || "Participant removed.", "success");
+      await fetchActivities();
+    } catch (err) {
+      console.error(err);
+      showMessage("Network error while removing participant.", "error");
+    }
+  });
 
   function populateActivityOptions(data) {
     // clear existing options except the placeholder
@@ -103,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     try {
       const encodedActivity = encodeURIComponent(activity);
+      console.log(`Signing up ${email} for ${activity}`);
       const res = await fetch(`/activities/${encodedActivity}/signup?email=${encodeURIComponent(email)}`, {
         method: "POST"
       });
@@ -113,7 +155,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       showMessage(json.message || "Signed up successfully!", "success");
       // refresh activities to show updated participants
+      console.log("Refreshing activities list...");
       await fetchActivities();
+      console.log("Activities list refreshed");
       signupForm.reset();
     } catch (err) {
       console.error(err);
